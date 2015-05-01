@@ -22,6 +22,9 @@ import java.util.List;
 import cat.santi.mod.onedot.entities.Entity;
 import cat.santi.mod.onedot.entities.impl.Dot;
 import cat.santi.mod.onedot.entities.impl.Skull;
+import cat.santi.mod.onedot.manager.BitmapManager;
+import cat.santi.mod.onedot.manager.ManagerFactory;
+import cat.santi.mod.onedot.utils.SurfaceUtils;
 
 /**
  * Main view for one-dot enemies style game, which is self-managed. This means that by only adding
@@ -61,18 +64,24 @@ public class OneDotView extends FrameLayout {
     // FIELDS
     //////////////////////////////////////////////////
 
+    // Game fields
+
     private int mScore;
 
+    private GameLoop mGameLoop;
     private List<Entity> mEntities;
-
-    private Rect mSurfaceRect;
-
     private PointF mThumbPoint;
     private Paint mThumbPaint;
 
-    private GameLoop mGameLoop;
+    // View fields
+
+    private Rect mSurfaceRect;
 
     private OneDotCallbacks mCallbacks;
+
+    // Managers
+
+    private BitmapManager mBitmapManager;
 
     // View attributes
 
@@ -127,6 +136,8 @@ public class OneDotView extends FrameLayout {
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if(isDebug())
+                    Log.d(TAG, "User touched the surface...");
                 mThumbPoint = new PointF(event.getX(), event.getY());
                 checkCollisions(mThumbPoint);
                 break;
@@ -209,17 +220,29 @@ public class OneDotView extends FrameLayout {
         return mScore;
     }
 
-    public void increaseScore(int score) {
+    public void dotSmashed(Dot dot) {
+        if(isDebug())
+            Log.d(TAG, "Dot smashed!");
+        addScore(dot.getScore());
+        generateSkull(dot.getPosition().x, dot.getPosition().y);
+    }
+
+    public void addScore(int score) {
+        if(isDebug())
+            Log.d(TAG, "Score added: " + score);
         mScore += score;
         notifyScoreChanged(mScore, score);
     }
 
     public void generateDot() {
-        mEntities.add(new Dot(mSurfaceRect, SIZE_DOT_SMALL));
+        final Point point = SurfaceUtils.generateRandomPoint(mSurfaceRect);
+        generateDot(point.x, point.y);
     }
 
     public void generateDot(int x, int y) {
-        mEntities.add(new Dot(new Point(x, y), SIZE_DOT_SMALL));
+        mEntities.add(new Dot(new Point(x, y), SIZE_DOT_LARGE));
+        if(isDebug())
+            Log.d(TAG, "A dot was generated");
     }
 
     public void generateSkull(int x, int y) {
@@ -247,6 +270,8 @@ public class OneDotView extends FrameLayout {
     private void init() {
         // Tell the view the #onDraw method should be considered
         setWillNotDraw(false);
+        // Initialize manager
+        mBitmapManager = ManagerFactory.getBitmapManager(getResources());
         // Initialize fields
         mGameLoop = new GameLoop();
         mEntities = new ArrayList<>();
@@ -262,7 +287,7 @@ public class OneDotView extends FrameLayout {
     private void updateSurfaceRect(boolean changed, int left, int top, int right, int bottom) {
         if (changed) {
             int padding = SurfaceUtils.dipToPixels(getResources().getDisplayMetrics(), 20);
-            // TODO: SHOULD ENSURE THERE IS ENOUGH SURFACE SPACE BEFORE DOING ANYTHING ELSE...
+            // TODO: SHOULD CHECK IF THERE IS ENOUGH SURFACE SPACE, BEFORE DOING ANYTHING ELSE...
             mSurfaceRect = new Rect(left + padding, top + padding, right - padding, bottom - padding);
 
             // Add some dots just for fun
@@ -293,7 +318,7 @@ public class OneDotView extends FrameLayout {
 
     private void onDrawEntities(Canvas canvas) {
         for (int index = mEntities.size() - 1; index >= 0; index--)
-            mEntities.get(index).draw(canvas, getResources());
+            mEntities.get(index).draw(canvas, mBitmapManager);
     }
 
     private void onDrawDebug(Canvas canvas) {

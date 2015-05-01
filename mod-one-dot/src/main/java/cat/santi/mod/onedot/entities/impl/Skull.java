@@ -1,20 +1,19 @@
 package cat.santi.mod.onedot.entities.impl;
 
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-import cat.santi.mod.onedot.Bitmaps;
 import cat.santi.mod.onedot.entities.AbstractEntity;
+import cat.santi.mod.onedot.manager.BitmapManager;
 
 /**
  *
  */
 public class Skull extends AbstractEntity {
 
-    private static final int ALPHA_MAX = 250;
-    private static final int ALPHA_DECAY_DELTA = 25;
+    private static final int ALPHA_MAX = 255;
+    private static final int ALPHA_DECAY_DELTA = 10;
     private static final int IMAGE_SIZE = 50;
 
     private int mAlpha;
@@ -31,8 +30,13 @@ public class Skull extends AbstractEntity {
     }
 
     @Override
-    public void draw(Canvas canvas, Resources resources) {
-        super.draw(canvas, Bitmaps.getInstance(resources).get(Bitmaps.BITMAP_SKULL));
+    public void draw(Canvas canvas, BitmapManager bitmapManager) {
+        super.draw(canvas, bitmapManager.get(BitmapManager.BMP_INDEX_SKULL));
+    }
+
+    @Override
+    public boolean shouldBeRemoved() {
+        return mAlpha <= 0;
     }
 
     private void resetAlpha() {
@@ -45,10 +49,5 @@ public class Skull extends AbstractEntity {
         if (mAlpha < 0)
             mAlpha = 0;
         getPaint().setAlpha(mAlpha);
-    }
-
-    @Override
-    public boolean shouldBeRemoved() {
-        return mAlpha <= 0;
     }
 }

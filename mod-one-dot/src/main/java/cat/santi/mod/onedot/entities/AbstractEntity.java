@@ -1,6 +1,5 @@
 package cat.santi.mod.onedot.entities;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,6 +8,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 
 import cat.santi.mod.onedot.OneDotView;
+import cat.santi.mod.onedot.manager.BitmapManager;
 
 /**
  *
@@ -27,6 +27,11 @@ public abstract class AbstractEntity implements
         mPosition = position;
         mSize = size;
         initPaint();
+    }
+
+    @Override
+    public Point getPosition() {
+        return mPosition;
     }
 
     @Override
@@ -52,7 +57,7 @@ public abstract class AbstractEntity implements
     }
 
     @Override
-    public void draw(Canvas canvas, Resources resources) {
+    public void draw(Canvas canvas, BitmapManager bitmapManager) {
         // Default implementation only renders a dot, not a bitmap
         // override this method in concrete entity sub-class if you want to print specific bitmap
         draw(canvas);

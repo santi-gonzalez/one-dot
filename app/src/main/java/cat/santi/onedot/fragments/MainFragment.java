@@ -2,6 +2,7 @@ package cat.santi.onedot.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,9 @@ import cat.santi.onedot.R;
 public class MainFragment extends Fragment implements
         OneDotView.OneDotCallbacks {
 
-    // Note: Find usages of #mOneDotView to see callback and lifecycle interaction
+    private static final String TAG = MainFragment.class.getSimpleName();
+
+    // Note: Find usages of #mOneDotView to see callback andlifecycle interaction
 
     @InjectView(R.id.od__main__one_dot_view)
     OneDotView mOneDotView;
@@ -71,12 +74,15 @@ public class MainFragment extends Fragment implements
 
     @Override
     public void onScoreChanged(int score, int delta) {
+//        toast("Score changed | score:" + score + " delta:" + delta);
+        Log.d(TAG, "Total score: " + score);
+    }
+
+    // Just for debug purposes
+    private void toast(String message) {
         if(mToast != null)
             mToast.cancel();
-        mToast = Toast.makeText(
-                getActivity(),
-                "Score changed | score:" + score + " delta:" + delta,
-                Toast.LENGTH_SHORT);
+        mToast = Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT);
         mToast.show();
     }
 }
