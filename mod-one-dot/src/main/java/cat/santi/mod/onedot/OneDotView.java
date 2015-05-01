@@ -48,13 +48,13 @@ public class OneDotView extends FrameLayout {
     // CONSTANTS
     //////////////////////////////////////////////////
 
-    private static final int TARGET_FPS = 30;
+    private static final int TARGET_FPS = ConfigParams.TARGET_FPS;
 
-    private static final int SIZE_DOT_SMALL = 1;
-    private static final int SIZE_DOT_MEDIUM = 5;
-    private static final int SIZE_DOT_LARGE = 10;
+    private static final int SIZE_DOT_SMALL = ConfigParams.SIZE_DOT_SMALL;
+    private static final int SIZE_DOT_MEDIUM = ConfigParams.SIZE_DOT_MEDIUM;
+    private static final int SIZE_DOT_LARGE = ConfigParams.SIZE_DOT_LARGE;
 
-    private static final float THUMB_RADIUS = 50f;
+    private static final float THUMB_RADIUS = ConfigParams.THUMB_RADIUS;
 
     // Default attribute values
 

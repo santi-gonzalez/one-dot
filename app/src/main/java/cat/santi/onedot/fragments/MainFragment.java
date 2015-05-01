@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -31,6 +34,33 @@ public class MainFragment extends Fragment implements
 
     public static Fragment newInstance() {
         return new MainFragment();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.od__main_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.od__action_pause:
+                return actionPause();
+            case R.id.od__action_resume:
+                return actionResume();
+            case R.id.od__action_restart:
+                return actionRestart();
+            case R.id.od__action_stop:
+                return actionStop();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -70,6 +100,28 @@ public class MainFragment extends Fragment implements
         ButterKnife.reset(this);
     }
 
+    // Toolbar actions
+
+    private boolean actionPause() {
+        // TODO: IMPLEMENT
+        return true;
+    }
+
+    private boolean actionResume() {
+        // TODO: IMPLEMENT
+        return true;
+    }
+
+    private boolean actionRestart() {
+        // TODO: IMPLEMENT
+        return true;
+    }
+
+    private boolean actionStop() {
+        // TODO: IMPLEMENT
+        return true;
+    }
+
     // OneDotView callbacks
 
     @Override
@@ -80,7 +132,7 @@ public class MainFragment extends Fragment implements
 
     // Just for debug purposes
     private void toast(String message) {
-        if(mToast != null)
+        if (mToast != null)
             mToast.cancel();
         mToast = Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT);
         mToast.show();

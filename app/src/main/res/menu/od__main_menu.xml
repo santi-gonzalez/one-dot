@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/od__action_pause"
+        android:title="@string/od__action_pause"/>
+    <item
+        android:id="@+id/od__action_resume"
+        android:title="@string/od__action_resume"/>
+    <item
+        android:id="@+id/od__action_restart"
+        android:title="@string/od__action_restart"/>
+    <item
+        android:id="@+id/od__action_stop"
+        android:title="@string/od__action_stop"/>
+</menu>

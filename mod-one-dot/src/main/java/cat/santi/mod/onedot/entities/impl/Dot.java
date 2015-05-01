@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
+import cat.santi.mod.onedot.ConfigParams;
 import cat.santi.mod.onedot.OneDotView;
 import cat.santi.mod.onedot.entities.AbstractEntity;
 import cat.santi.mod.onedot.entities.Killable;
@@ -16,10 +17,10 @@ import cat.santi.mod.onedot.manager.BitmapManager;
 public class Dot extends AbstractEntity
         implements Movable, Killable {
 
-    private static final int SCORE = 1;
+    private static final int SCORE = ConfigParams.SCORE;
 
-    private static final float DEFAULT_VELOCITY_X = 0f;
-    private static final float DEFAULT_VELOCITY_Y = 0f;
+    private static final float DEFAULT_VELOCITY_X = ConfigParams.DEFAULT_VELOCITY_X;
+    private static final float DEFAULT_VELOCITY_Y = ConfigParams.DEFAULT_VELOCITY_Y;
 
     private boolean mFlagKilled;
     private float mVelocityX;
