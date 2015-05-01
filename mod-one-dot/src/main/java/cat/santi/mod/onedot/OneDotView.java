@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cat.santi.mod.onedot.entities.Entity;
+import cat.santi.mod.onedot.entities.Killable;
 import cat.santi.mod.onedot.entities.impl.Dot;
 import cat.santi.mod.onedot.entities.impl.Skull;
 import cat.santi.mod.onedot.manager.BitmapManager;
@@ -136,7 +137,7 @@ public class OneDotView extends FrameLayout {
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if(isDebug())
+                if (isDebug())
                     Log.d(TAG, "User touched the surface...");
                 mThumbPoint = new PointF(event.getX(), event.getY());
                 checkCollisions(mThumbPoint);
@@ -158,8 +159,8 @@ public class OneDotView extends FrameLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        onDrawDebug(canvas);
-        onDrawEntities(canvas);
+        drawDebug(canvas);
+        drawEntities(canvas);
     }
 
     // View attributes
@@ -221,14 +222,14 @@ public class OneDotView extends FrameLayout {
     }
 
     public void dotSmashed(Dot dot) {
-        if(isDebug())
+        if (isDebug())
             Log.d(TAG, "Dot smashed!");
         addScore(dot.getScore());
         generateSkull(dot.getPosition().x, dot.getPosition().y);
     }
 
     public void addScore(int score) {
-        if(isDebug())
+        if (isDebug())
             Log.d(TAG, "Score added: " + score);
         mScore += score;
         notifyScoreChanged(mScore, score);
@@ -239,14 +240,14 @@ public class OneDotView extends FrameLayout {
         generateDot(point.x, point.y);
     }
 
-    public void generateDot(int x, int y) {
-        mEntities.add(new Dot(new Point(x, y), SIZE_DOT_LARGE));
-        if(isDebug())
+    public void generateDot(float x, float y) {
+        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE));
+        if (isDebug())
             Log.d(TAG, "A dot was generated");
     }
 
-    public void generateSkull(int x, int y) {
-        mEntities.add(new Skull(new Point(x, y)));
+    public void generateSkull(float x, float y) {
+        mEntities.add(new Skull(new PointF(x, y)));
     }
 
     public void setCallbacks(OneDotCallbacks callbacks) {
@@ -312,16 +313,19 @@ public class OneDotView extends FrameLayout {
 
     private void checkCollisions(PointF point) {
         for (int index = mEntities.size() - 1; index >= 0; index--)
-            if (mEntities.get(index).collides(point.x, point.y, THUMB_RADIUS))
-                mEntities.get(index).smash(this, point.x, point.y);
+            if (mEntities.get(index) instanceof Killable) {
+                final Killable killableEntity = (Killable) mEntities.get(index);
+                if (killableEntity.collides(point.x, point.y, THUMB_RADIUS))
+                    killableEntity.smash(this, point.x, point.y);
+            }
     }
 
-    private void onDrawEntities(Canvas canvas) {
+    private void drawEntities(Canvas canvas) {
         for (int index = mEntities.size() - 1; index >= 0; index--)
             mEntities.get(index).draw(canvas, mBitmapManager);
     }
 
-    private void onDrawDebug(Canvas canvas) {
+    private void drawDebug(Canvas canvas) {
         if (_debug && mThumbPoint != null)
             canvas.drawCircle(mThumbPoint.x, mThumbPoint.y, THUMB_RADIUS, mThumbPaint);
     }

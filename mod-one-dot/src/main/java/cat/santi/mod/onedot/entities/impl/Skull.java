@@ -1,7 +1,7 @@
 package cat.santi.mod.onedot.entities.impl;
 
 import android.graphics.Canvas;
-import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 
 import cat.santi.mod.onedot.entities.AbstractEntity;
@@ -18,7 +18,7 @@ public class Skull extends AbstractEntity {
 
     private int mAlpha;
 
-    public Skull(Point position) {
+    public Skull(PointF position) {
         super(position, IMAGE_SIZE);
         resetAlpha();
     }
@@ -31,7 +31,7 @@ public class Skull extends AbstractEntity {
 
     @Override
     public void draw(Canvas canvas, BitmapManager bitmapManager) {
-        super.draw(canvas, bitmapManager.get(BitmapManager.BMP_INDEX_SKULL));
+        drawInternal(canvas, bitmapManager.get(BitmapManager.BMP_INDEX_SKULL));
     }
 
     @Override
