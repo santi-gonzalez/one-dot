@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="OneDotView">
+        <attr name="odvSurface" format="color|reference"/>
+        <attr name="odvDebug" format="boolean"/>
+    </declare-styleable>
+</resources>
