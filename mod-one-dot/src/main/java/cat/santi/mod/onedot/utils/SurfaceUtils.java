@@ -1,4 +1,4 @@
-package cat.santi.mod.onedot;
+package cat.santi.mod.onedot.utils;
 
 import android.graphics.Point;
 import android.graphics.Rect;
