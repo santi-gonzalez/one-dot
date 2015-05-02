@@ -98,7 +98,7 @@ The way AI and game surface are implemented allows _dots_ to travel any directio
 destiny is inside the allowed borders. This means that the _dots_ tend to gather to the view
 corners after some time. Might want to work more on it.
 
-![Dots gathering on border issue](http://www.google.com/images/srpr/logo11w.png)
+![Dots gathering on border issue](https://raw.github.com/santi-gonzalez/one-dot/master/images/Screenshot_2015-05-02-17-16-58.png)
 > TODO: Add correct image link
 
 ## LICENSE
