@@ -1,4 +1,4 @@
-package cat.santi.mod.onedot.manager.impl;
+package cat.santi.mod.onedot.managers.impl;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cat.santi.mod.onedot.R;
-import cat.santi.mod.onedot.manager.BitmapManager;
+import cat.santi.mod.onedot.managers.BitmapManager;
 
 /**
  *

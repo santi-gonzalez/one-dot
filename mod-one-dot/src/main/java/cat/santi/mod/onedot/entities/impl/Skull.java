@@ -6,7 +6,7 @@ import android.graphics.Rect;
 
 import cat.santi.mod.onedot.ConfigParams;
 import cat.santi.mod.onedot.entities.AbstractEntity;
-import cat.santi.mod.onedot.manager.BitmapManager;
+import cat.santi.mod.onedot.managers.BitmapManager;
 
 /**
  *

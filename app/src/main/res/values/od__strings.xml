@@ -1,5 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="od__app_name">_Sample_ one-dot bugs</string>
+    <string name="od__action_pause">Pause</string>
+    <string name="od__action_resume">Resume</string>
+    <string name="od__action_restart">Restart</string>
+    <string name="od__action_destroy">Destroy</string>
 
 </resources>

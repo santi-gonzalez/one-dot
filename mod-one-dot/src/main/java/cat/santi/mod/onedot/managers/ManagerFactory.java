@@ -1,8 +1,8 @@
-package cat.santi.mod.onedot.manager;
+package cat.santi.mod.onedot.managers;
 
 import android.content.res.Resources;
 
-import cat.santi.mod.onedot.manager.impl.BitmapManagerImpl;
+import cat.santi.mod.onedot.managers.impl.BitmapManagerImpl;
 
 /**
  *

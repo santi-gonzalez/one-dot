@@ -19,12 +19,14 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import cat.santi.mod.onedot.ai.actions.impl.Walk;
+import cat.santi.mod.onedot.ai.impl.AIModuleImpl;
 import cat.santi.mod.onedot.entities.Entity;
 import cat.santi.mod.onedot.entities.Killable;
 import cat.santi.mod.onedot.entities.impl.Dot;
 import cat.santi.mod.onedot.entities.impl.Skull;
-import cat.santi.mod.onedot.manager.BitmapManager;
-import cat.santi.mod.onedot.manager.ManagerFactory;
+import cat.santi.mod.onedot.managers.BitmapManager;
+import cat.santi.mod.onedot.managers.ManagerFactory;
 import cat.santi.mod.onedot.utils.SurfaceUtils;
 
 /**
@@ -54,20 +56,23 @@ public class OneDotView extends FrameLayout {
     private static final int SIZE_DOT_MEDIUM = ConfigParams.SIZE_DOT_MEDIUM;
     private static final int SIZE_DOT_LARGE = ConfigParams.SIZE_DOT_LARGE;
 
-    private static final float THUMB_RADIUS = ConfigParams.THUMB_RADIUS;
+    private static final float SURFACE_PADDING = ConfigParams.SURFACE_PADDING;
+
+    private static final boolean SHOW_TOUCHES_IN_DEBUG_MODE = ConfigParams.SHOW_TOUCHES_IN_DEBUG_MODE;
+    private static final boolean SHOW_FPS_IN_DEBUG_MODE = ConfigParams.SHOW_FPS_IN_DEBUG_MODE;
 
     // Default attribute values
 
-    private static final int DEF_SURFACE = Color.WHITE;
-    private static final boolean DEF_DEBUG = false;
+    private static final int DEF_SCORE = ConfigParams.DEF_SCORE;
+    private static final float DEF_THUMB_RADIUS = ConfigParams.THUMB_RADIUS;
+    private static final int DEF_SURFACE = ConfigParams.DEF_SURFACE;
+    private static final boolean DEF_DEBUG = ConfigParams.DEF_DEBUG;
 
     //////////////////////////////////////////////////
     // FIELDS
     //////////////////////////////////////////////////
 
     // Game fields
-
-    private int mScore;
 
     private GameLoop mGameLoop;
     private List<Entity> mEntities;
@@ -86,8 +91,10 @@ public class OneDotView extends FrameLayout {
 
     // View attributes
 
-    private boolean _debug;
+    private int mScore;
+    private float mThumbRadius;
     private int mSurface;
+    private boolean _debug;
 
     //////////////////////////////////////////////////
     // METHODS
@@ -120,7 +127,9 @@ public class OneDotView extends FrameLayout {
         SavedState ss = new SavedState(superState);
 
         // Put fields which are gonna be saved
-        ss.score = this.mScore;
+        ss.score = getScore();
+        ss.surface = getSurface();
+        ss.debug = isDebug();
         return ss;
     }
 
@@ -130,15 +139,22 @@ public class OneDotView extends FrameLayout {
         super.onRestoreInstanceState(ss.getSuperState());
 
         // Put fields which are gonna be restored
-        this.mScore = ss.score;
+        setScore(ss.score);
+        setSurface(ss.surface);
+        setDebug(ss.debug);
     }
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
+        // Ignore touches when paused or destroyed
+        if (mGameLoop != null && (mGameLoop.isPaused() || mGameLoop.isCancelled()))
+            return false;
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (isDebug())
-                    Log.d(TAG, "User touched the surface...");
+                //noinspection PointlessBooleanExpression,ConstantConditions
+                if (isDebug() && SHOW_TOUCHES_IN_DEBUG_MODE)
+                    Log.v(TAG, "User touched the surface...");
                 mThumbPoint = new PointF(event.getX(), event.getY());
                 checkCollisions(mThumbPoint);
                 break;
@@ -153,7 +169,8 @@ public class OneDotView extends FrameLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        updateSurfaceRect(changed, left, top, right, bottom);
+        if (changed)
+            setSurfaceRect(left, top, right, bottom);
     }
 
     @Override
@@ -164,6 +181,45 @@ public class OneDotView extends FrameLayout {
     }
 
     // View attributes
+
+    public int getScore() {
+        return mScore;
+    }
+
+    public void setScore(int score) {
+        if (score < 0)
+            score = 0;
+        this.mScore = score;
+    }
+
+    public float getThumbRadius() {
+        return mThumbRadius;
+    }
+
+    public void setThumbRadius(float thumbRadius) {
+        mThumbRadius = SurfaceUtils.dipToPixels(getResources().getDisplayMetrics(), thumbRadius);
+    }
+
+    /**
+     * Get the surface color.
+     *
+     * @return The surface color.
+     */
+    public int getSurface() {
+        return mSurface;
+    }
+
+    /**
+     * Set the surface color, actually changing the {@code android:background} xml attribute.
+     * <p/>
+     * <i>Default color is WHITE.</i>
+     *
+     * @param surface The surface color to apply.
+     */
+    public void setSurface(int surface) {
+        mSurface = surface;
+        setBackgroundColor(surface);
+    }
 
     /**
      * Get whether or not this view is in debug mode.
@@ -185,54 +241,71 @@ public class OneDotView extends FrameLayout {
         _debug = debug;
     }
 
-    /**
-     * Get the surface color.
-     *
-     * @return The surface color.
-     */
-    public int getSurface() {
-        return mSurface;
-    }
-
-    /**
-     * Set the surface color.
-     * <p/>
-     * <i>Default color is WHITE.</i>
-     *
-     * @param surface The surface color to apply.
-     */
-    public void setSurface(int surface) {
-        mSurface = surface;
-        setBackgroundColor(surface);
-    }
-
     // View accessors
 
+    public void newGame(int dots) {
+        if (mSurfaceRect == null)
+            throw new IllegalStateException("A new game can not be started before creation of" +
+                    "view layout");
+
+        if (isDebug())
+            Log.v(TAG, "Creating a new game...");
+        setScore(0);
+        clearEntities();
+        generateDots(dots);
+        onResume();
+        if (isDebug())
+            Log.v(TAG, "New game created!");
+    }
+
     public void onResume() {
+        if (mGameLoop == null || mGameLoop.isCancelled())
+            return;
+
+        if (isDebug())
+            Log.v(TAG, "Game resumed");
         mGameLoop.onResume();
     }
 
     public void onPause() {
+        if (mGameLoop == null || mGameLoop.isCancelled())
+            return;
+
+        if (isDebug())
+            Log.v(TAG, "Game paused");
         mGameLoop.onPause();
     }
 
     public int onDestroy() {
+        if (mGameLoop == null || mGameLoop.isCancelled())
+            return 0;
+
+        if (isDebug())
+            Log.v(TAG, "Game destroyed | score:" + getScore());
         mGameLoop.finish();
-        return mScore;
+        mEntities.clear();
+        invalidate();
+        return getScore();
     }
 
-    public void dotSmashed(Dot dot) {
+    /**
+     * This method is used by entities. <b>Do not invoke this method directly.</b>
+     *
+     * @param dot The <i>dot</i> which has been smashed.
+     */
+    // TODO: REFORMAT PROCESS
+    public void onDotSmashed(Dot dot) {
         if (isDebug())
-            Log.d(TAG, "Dot smashed!");
+            Log.v(TAG, "Dot smashed!");
         addScore(dot.getScore());
         generateSkull(dot.getPosition().x, dot.getPosition().y);
     }
 
     public void addScore(int score) {
         if (isDebug())
-            Log.d(TAG, "Score added: " + score);
-        mScore += score;
-        notifyScoreChanged(mScore, score);
+            Log.v(TAG, "Score added:" + score);
+        setScore(getScore() + score);
+        notifyScoreChanged(getScore(), score);
     }
 
     public void generateDot() {
@@ -241,9 +314,26 @@ public class OneDotView extends FrameLayout {
     }
 
     public void generateDot(float x, float y) {
-        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE));
+        // TODO: DEBUG
+//        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE));
+        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE, new AIModuleImpl(
+                new Walk(2f, 1f, 50),
+                new Walk(-1f, 2f, 50),
+                new Walk(-2f, -1f, 50),
+                new Walk(1f, -2f, 50))));
         if (isDebug())
-            Log.d(TAG, "A dot was generated");
+            Log.v(TAG, "A dot was generated");
+    }
+
+    public void clearEntities() {
+        if (mEntities == null)
+            mEntities = new ArrayList<>();
+        mEntities.clear();
+    }
+
+    public void generateDots(int dots) {
+        for (int index = 0; index < dots; index++)
+            generateDot();
     }
 
     public void generateSkull(float x, float y) {
@@ -262,8 +352,10 @@ public class OneDotView extends FrameLayout {
                 R.styleable.OneDotView,
                 defStyleAttr, 0);
 
-        setDebug(a.getBoolean(R.styleable.OneDotView_odvDebug, DEF_DEBUG));
+        setScore(a.getInteger(R.styleable.OneDotView_odvScore, DEF_SCORE));
+        setThumbRadius(a.getFloat(R.styleable.OneDotView_odvThumbRadius, DEF_THUMB_RADIUS));
         setSurface(a.getColor(R.styleable.OneDotView_odvSurface, DEF_SURFACE));
+        setDebug(a.getBoolean(R.styleable.OneDotView_odvDebug, DEF_DEBUG));
 
         a.recycle();
     }
@@ -283,18 +375,15 @@ public class OneDotView extends FrameLayout {
 
         // Begin looping
         mGameLoop.start();
+
+        if (isDebug())
+            Log.v(TAG, ">> GAME VIEW CREATED <<");
     }
 
-    private void updateSurfaceRect(boolean changed, int left, int top, int right, int bottom) {
-        if (changed) {
-            int padding = SurfaceUtils.dipToPixels(getResources().getDisplayMetrics(), 20);
-            // TODO: SHOULD CHECK IF THERE IS ENOUGH SURFACE SPACE, BEFORE DOING ANYTHING ELSE...
-            mSurfaceRect = new Rect(left + padding, top + padding, right - padding, bottom - padding);
-
-            // Add some dots just for fun
-            for (int index = 0; index < 10; index++)
-                generateDot();
-        }
+    private void setSurfaceRect(int left, int top, int right, int bottom) {
+        int padding = SurfaceUtils.dipToPixels(getResources().getDisplayMetrics(), SURFACE_PADDING);
+        // TODO: SHOULD CHECK IF THERE IS ENOUGH SURFACE SPACE, BEFORE DOING ANYTHING ELSE...
+        mSurfaceRect = new Rect(left + padding, top + padding, right - padding, bottom - padding);
     }
 
     private void process(double delta) {
@@ -307,15 +396,16 @@ public class OneDotView extends FrameLayout {
     }
 
     private void updateFPS(int fps) {
-        if (isDebug())
-            Log.d(TAG, "FPS: " + fps);
+        //noinspection PointlessBooleanExpression,ConstantConditions
+        if (isDebug() && SHOW_FPS_IN_DEBUG_MODE)
+            Log.v(TAG, "FPS:" + fps);
     }
 
     private void checkCollisions(PointF point) {
         for (int index = mEntities.size() - 1; index >= 0; index--)
             if (mEntities.get(index) instanceof Killable) {
                 final Killable killableEntity = (Killable) mEntities.get(index);
-                if (killableEntity.collides(point.x, point.y, THUMB_RADIUS))
+                if (killableEntity.collides(point.x, point.y, getThumbRadius()))
                     killableEntity.smash(this, point.x, point.y);
             }
     }
@@ -327,7 +417,7 @@ public class OneDotView extends FrameLayout {
 
     private void drawDebug(Canvas canvas) {
         if (_debug && mThumbPoint != null)
-            canvas.drawCircle(mThumbPoint.x, mThumbPoint.y, THUMB_RADIUS, mThumbPaint);
+            canvas.drawCircle(mThumbPoint.x, mThumbPoint.y, getThumbRadius(), mThumbPaint);
     }
 
     private void notifyScoreChanged(int score, int delta) {
@@ -356,6 +446,8 @@ public class OneDotView extends FrameLayout {
                 };
 
         int score;
+        int surface;
+        boolean debug;
 
         SavedState(Parcelable superState) {
             super(superState);
@@ -364,12 +456,16 @@ public class OneDotView extends FrameLayout {
         private SavedState(Parcel in) {
             super(in);
             this.score = in.readInt();
+            this.surface = in.readInt();
+            this.debug = in.readInt() == 1;
         }
 
         @Override
         public void writeToParcel(@NonNull Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(this.score);
+            out.writeInt(this.surface);
+            out.writeInt(this.debug ? 1 : 0);
         }
     }
 
@@ -394,7 +490,7 @@ public class OneDotView extends FrameLayout {
 
         @Override
         public void run() {
-            while (!mCancelled) {
+            while (!isCancelled()) {
                 final long now = System.nanoTime();
                 final long updateLength = now - mLastLoopTime;
                 mLastLoopTime = now;
@@ -431,6 +527,14 @@ public class OneDotView extends FrameLayout {
 
         public void finish() {
             mCancelled = true;
+        }
+
+        public boolean isPaused() {
+            return !mTriggersLogic;
+        }
+
+        public boolean isCancelled() {
+            return mCancelled;
         }
     }
 }

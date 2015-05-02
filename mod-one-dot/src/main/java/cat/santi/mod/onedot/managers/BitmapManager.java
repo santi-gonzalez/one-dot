@@ -1,4 +1,4 @@
-package cat.santi.mod.onedot.manager;
+package cat.santi.mod.onedot.managers;
 
 import android.graphics.Bitmap;
 

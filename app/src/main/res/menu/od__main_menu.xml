@@ -10,6 +10,6 @@
         android:id="@+id/od__action_restart"
         android:title="@string/od__action_restart"/>
     <item
-        android:id="@+id/od__action_stop"
-        android:title="@string/od__action_stop"/>
+        android:id="@+id/od__action_destroy"
+        android:title="@string/od__action_destroy"/>
 </menu>

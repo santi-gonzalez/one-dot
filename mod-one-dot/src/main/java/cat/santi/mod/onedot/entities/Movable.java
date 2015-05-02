@@ -1,13 +1,11 @@
 package cat.santi.mod.onedot.entities;
 
+import android.graphics.Rect;
+
 /**
  *
  */
 public interface Movable {
 
-    // TODO: ADD MORE METHODS TO DEFINE MOVING BEHAVIOR
-
-    float getVelocityX();
-
-    float getVelocityY();
+    void move(Rect surface, double delta);
 }

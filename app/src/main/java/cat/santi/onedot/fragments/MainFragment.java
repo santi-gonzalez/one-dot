@@ -24,7 +24,7 @@ public class MainFragment extends Fragment implements
 
     private static final String TAG = MainFragment.class.getSimpleName();
 
-    // Note: Find usages of #mOneDotView to see callback andlifecycle interaction
+    // Note: Find usages of #mOneDotView to see callback and lifecycle interaction
 
     @InjectView(R.id.od__main__one_dot_view)
     OneDotView mOneDotView;
@@ -56,7 +56,7 @@ public class MainFragment extends Fragment implements
                 return actionResume();
             case R.id.od__action_restart:
                 return actionRestart();
-            case R.id.od__action_stop:
+            case R.id.od__action_destroy:
                 return actionStop();
             default:
                 return super.onOptionsItemSelected(item);
@@ -95,30 +95,32 @@ public class MainFragment extends Fragment implements
         super.onDestroyView();
         // Unregister callbacks
         mOneDotView.setCallbacks(null);
-        // Detroy the game, ending the loop (returns the total score)
+        // Destroy the game, ending the loop (returns the total score)
         final int score = mOneDotView.onDestroy();
+        Log.i(TAG, ">> final score: " + score);
+
         ButterKnife.reset(this);
     }
 
     // Toolbar actions
 
     private boolean actionPause() {
-        // TODO: IMPLEMENT
+        mOneDotView.onPause();
         return true;
     }
 
     private boolean actionResume() {
-        // TODO: IMPLEMENT
+        mOneDotView.onResume();
         return true;
     }
 
     private boolean actionRestart() {
-        // TODO: IMPLEMENT
+        mOneDotView.newGame(10);
         return true;
     }
 
     private boolean actionStop() {
-        // TODO: IMPLEMENT
+        mOneDotView.onDestroy();
         return true;
     }
 
@@ -131,6 +133,7 @@ public class MainFragment extends Fragment implements
     }
 
     // Just for debug purposes
+    @SuppressWarnings("unused")
     private void toast(String message) {
         if (mToast != null)
             mToast.cancel();

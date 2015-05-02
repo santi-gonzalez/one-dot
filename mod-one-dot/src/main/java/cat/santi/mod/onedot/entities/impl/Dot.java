@@ -6,10 +6,12 @@ import android.graphics.Rect;
 
 import cat.santi.mod.onedot.ConfigParams;
 import cat.santi.mod.onedot.OneDotView;
+import cat.santi.mod.onedot.ai.AIModule;
+import cat.santi.mod.onedot.ai.actions.Action;
 import cat.santi.mod.onedot.entities.AbstractEntity;
 import cat.santi.mod.onedot.entities.Killable;
 import cat.santi.mod.onedot.entities.Movable;
-import cat.santi.mod.onedot.manager.BitmapManager;
+import cat.santi.mod.onedot.managers.BitmapManager;
 
 /**
  *
@@ -19,28 +21,19 @@ public class Dot extends AbstractEntity
 
     private static final int SCORE = ConfigParams.SCORE;
 
-    private static final float DEFAULT_VELOCITY_X = ConfigParams.DEFAULT_VELOCITY_X;
-    private static final float DEFAULT_VELOCITY_Y = ConfigParams.DEFAULT_VELOCITY_Y;
-
+    private AIModule mAIModule;
     private boolean mFlagKilled;
-    private float mVelocityX;
-    private float mVelocityY;
+
+    private Action mAction;
 
     public Dot(PointF position, int size) {
+        this(position, size, null);
+    }
+
+    public Dot(PointF position, int size, AIModule aiModule) {
         super(position, size);
+        mAIModule = aiModule;
         mFlagKilled = false;
-        mVelocityX = DEFAULT_VELOCITY_X;
-        mVelocityY = DEFAULT_VELOCITY_Y;
-    }
-
-    @Override
-    public float getVelocityX() {
-        return mVelocityX;
-    }
-
-    @Override
-    public float getVelocityY() {
-        return mVelocityY;
     }
 
     @Override
@@ -51,18 +44,12 @@ public class Dot extends AbstractEntity
     @Override
     public void smash(OneDotView view, float x, float y) {
         mFlagKilled = true;
-        view.dotSmashed(this);
+        view.onDotSmashed(this);
     }
 
     @Override
     public int getScore() {
         return SCORE;
-    }
-
-    @Override
-    public void process(Rect surface, double delta) {
-        getPosition().x += getVelocityX() * delta;
-        getPosition().y += getVelocityY() * delta;
     }
 
     @Override
@@ -73,5 +60,15 @@ public class Dot extends AbstractEntity
     @Override
     public boolean shouldBeRemoved() {
         return mFlagKilled;
+    }
+
+    @Override
+    public void move(Rect surface, double delta) {
+        if (mAction == null || mAction.isFinished())
+            mAction = mAIModule.next();
+
+        getPosition().x += mAction.getVelocityX() * delta;
+        getPosition().y += mAction.getVelocityY() * delta;
+        mAction.iterate();
     }
 }

@@ -33,7 +33,8 @@ public abstract class AbstractEntity implements
 
     @Override
     public void process(Rect surface, double delta) {
-        // Default implementation does nothing
+        if(this instanceof Movable)
+            ((Movable) this).move(surface, delta);
     }
 
     @Override

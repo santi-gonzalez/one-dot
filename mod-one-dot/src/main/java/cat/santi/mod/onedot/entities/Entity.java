@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
-import cat.santi.mod.onedot.manager.BitmapManager;
+import cat.santi.mod.onedot.managers.BitmapManager;
 
 /**
  *
