@@ -4,7 +4,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import cat.santi.mod.onedot.ai.AIModule;
-import cat.santi.mod.onedot.ai.actions.Action;
+import cat.santi.mod.onedot.ai.movements.Movement;
+import cat.santi.mod.onedot.utils.RandomUtils;
 
 /**
  *
@@ -12,25 +13,47 @@ import cat.santi.mod.onedot.ai.actions.Action;
 public class AIModuleImpl implements
         AIModule {
 
-    private Queue<Action> mActionQueue;
+    private Queue<Movement> mMovementQueue;
 
-    public AIModuleImpl(Action... actions) {
-        if (actions == null || actions.length == 0)
-            throw new IllegalArgumentException("actions must not be null or empty");
+    public AIModuleImpl(int actionCount) {
+        actionCount = ensureActionCount(actionCount);
+        init(createMovementsArray(actionCount));
+    }
 
-        mActionQueue = new LinkedList<>();
-        for (Action action : actions)
-            mActionQueue.offer(action);
+    public AIModuleImpl(Movement... movements) {
+        init(movements);
     }
 
     @Override
-    public Action next() {
-        if (mActionQueue.size() == 0)
+    public Movement next() {
+        if (mMovementQueue.size() == 0)
             return null;
 
-        final Action action = mActionQueue.poll();
-        action.reset();
-        mActionQueue.offer(action);
-        return action;
+        final Movement movement = mMovementQueue.poll();
+        movement.reset();
+        mMovementQueue.offer(movement);
+        return movement;
+    }
+
+    private int ensureActionCount(int actionCount) {
+        if (actionCount < 0)
+            actionCount = 0;
+        return actionCount;
+    }
+
+    private Movement[] createMovementsArray(int actionCount) {
+        Movement[] movements = new Movement[actionCount];
+        for(int index = 0 ; index < actionCount ; index++)
+            movements[index] = RandomUtils.nextMovement();
+        return movements;
+    }
+
+    private void init(Movement... movements) {
+        if (movements == null || movements.length == 0)
+            throw new IllegalArgumentException("actions must not be null or empty");
+
+        mMovementQueue = new LinkedList<>();
+        for (Movement movement : movements)
+            mMovementQueue.offer(movement);
     }
 }

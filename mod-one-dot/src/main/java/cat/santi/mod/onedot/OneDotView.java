@@ -19,7 +19,6 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import cat.santi.mod.onedot.ai.actions.impl.Walk;
 import cat.santi.mod.onedot.ai.impl.AIModuleImpl;
 import cat.santi.mod.onedot.entities.Entity;
 import cat.santi.mod.onedot.entities.Killable;
@@ -57,6 +56,8 @@ public class OneDotView extends FrameLayout {
     private static final int SIZE_DOT_LARGE = ConfigParams.SIZE_DOT_LARGE;
 
     private static final float SURFACE_PADDING = ConfigParams.SURFACE_PADDING;
+
+    private static final int GENERATED_MOVEMENT_COUNT = ConfigParams.GENERATED_MOVEMENT_COUNT;
 
     private static final boolean SHOW_TOUCHES_IN_DEBUG_MODE = ConfigParams.SHOW_TOUCHES_IN_DEBUG_MODE;
     private static final boolean SHOW_FPS_IN_DEBUG_MODE = ConfigParams.SHOW_FPS_IN_DEBUG_MODE;
@@ -314,13 +315,7 @@ public class OneDotView extends FrameLayout {
     }
 
     public void generateDot(float x, float y) {
-        // TODO: DEBUG
-//        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE));
-        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE, new AIModuleImpl(
-                new Walk(2f, 1f, 50),
-                new Walk(-1f, 2f, 50),
-                new Walk(-2f, -1f, 50),
-                new Walk(1f, -2f, 50))));
+        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE, new AIModuleImpl(GENERATED_MOVEMENT_COUNT)));
         if (isDebug())
             Log.v(TAG, "A dot was generated");
     }

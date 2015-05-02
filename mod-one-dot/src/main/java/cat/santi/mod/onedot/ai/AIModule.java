@@ -1,11 +1,11 @@
 package cat.santi.mod.onedot.ai;
 
-import cat.santi.mod.onedot.ai.actions.Action;
+import cat.santi.mod.onedot.ai.movements.Movement;
 
 /**
  *
  */
 public interface AIModule {
 
-    Action next();
+    Movement next();
 }

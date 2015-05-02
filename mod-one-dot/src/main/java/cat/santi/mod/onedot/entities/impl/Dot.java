@@ -7,7 +7,7 @@ import android.graphics.Rect;
 import cat.santi.mod.onedot.ConfigParams;
 import cat.santi.mod.onedot.OneDotView;
 import cat.santi.mod.onedot.ai.AIModule;
-import cat.santi.mod.onedot.ai.actions.Action;
+import cat.santi.mod.onedot.ai.movements.Movement;
 import cat.santi.mod.onedot.entities.AbstractEntity;
 import cat.santi.mod.onedot.entities.Killable;
 import cat.santi.mod.onedot.entities.Movable;
@@ -24,7 +24,7 @@ public class Dot extends AbstractEntity
     private AIModule mAIModule;
     private boolean mFlagKilled;
 
-    private Action mAction;
+    private Movement mMovement;
 
     public Dot(PointF position, int size) {
         this(position, size, null);
@@ -64,11 +64,9 @@ public class Dot extends AbstractEntity
 
     @Override
     public void move(Rect surface, double delta) {
-        if (mAction == null || mAction.isFinished())
-            mAction = mAIModule.next();
+        if (mMovement == null || mMovement.isFinished())
+            mMovement = mAIModule.next();
 
-        getPosition().x += mAction.getVelocityX() * delta;
-        getPosition().y += mAction.getVelocityY() * delta;
-        mAction.iterate();
+        mMovement.iterate(getPosition(), delta);
     }
 }
