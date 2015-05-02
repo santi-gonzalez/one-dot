@@ -59,21 +59,11 @@ public abstract class AbstractMovement implements
     }
 
     @Override
-    public float getVelocityX() {
-        return mVelocityX;
-    }
-
-    @Override
-    public float getVelocityY() {
-        return mVelocityY;
-    }
-
-    @Override
     public boolean isFinished() {
         return mTickCount >= mDuration;
     }
 
-    public void performLogic(PointF position, Rect surface, double delta) {
+    protected void performLogic(PointF position, Rect surface, double delta) {
         position.x += mVelocityX * delta;
         position.y += mVelocityY * delta;
         mVelocityX += mAccelerationX * delta;

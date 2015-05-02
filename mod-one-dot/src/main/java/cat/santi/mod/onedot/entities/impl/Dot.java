@@ -26,10 +26,6 @@ public class Dot extends AbstractEntity
 
     private Movement mMovement;
 
-    public Dot(PointF position, int size) {
-        this(position, size, null);
-    }
-
     public Dot(PointF position, int size, AIModule aiModule) {
         super(position, size);
         mAIModule = aiModule;

@@ -10,7 +10,7 @@ public class ConfigParams {
 
     // OneDotView
 
-    public static final int TARGET_FPS = 30;
+    public static final int TARGET_CYCLES_PER_SECOND = 30;
 
     public static final int SIZE_DOT_SMALL = 1;
     public static final int SIZE_DOT_MEDIUM = 5;

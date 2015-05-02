@@ -26,6 +26,7 @@ import cat.santi.mod.onedot.entities.impl.Dot;
 import cat.santi.mod.onedot.entities.impl.Skull;
 import cat.santi.mod.onedot.managers.BitmapManager;
 import cat.santi.mod.onedot.managers.ManagerFactory;
+import cat.santi.mod.onedot.utils.RandomUtils;
 import cat.santi.mod.onedot.utils.SurfaceUtils;
 
 /**
@@ -42,17 +43,19 @@ import cat.santi.mod.onedot.utils.SurfaceUtils;
  * {@link OneDotView#onDestroy()} in the appropriate lifecycle callbacks.
  */
 public class OneDotView extends FrameLayout {
-
     private static final String TAG = OneDotView.class.getSimpleName();
 
     //////////////////////////////////////////////////
     // CONSTANTS
     //////////////////////////////////////////////////
 
-    private static final int TARGET_FPS = ConfigParams.TARGET_FPS;
+    private static final int TARGET_CYCLES_PER_SECOND = ConfigParams.TARGET_CYCLES_PER_SECOND;
 
+    @SuppressWarnings("unused")
     private static final int SIZE_DOT_SMALL = ConfigParams.SIZE_DOT_SMALL;
+    @SuppressWarnings("unused")
     private static final int SIZE_DOT_MEDIUM = ConfigParams.SIZE_DOT_MEDIUM;
+    @SuppressWarnings("unused")
     private static final int SIZE_DOT_LARGE = ConfigParams.SIZE_DOT_LARGE;
 
     private static final float SURFACE_PADDING = ConfigParams.SURFACE_PADDING;
@@ -244,13 +247,16 @@ public class OneDotView extends FrameLayout {
 
     // View accessors
 
-    public void newGame(int dots) {
+    public void newGame(int dots, long seed) {
         if (mSurfaceRect == null)
             throw new IllegalStateException("A new game can not be started before creation of" +
                     "view layout");
 
         if (isDebug())
             Log.v(TAG, "Creating a new game...");
+
+        RandomUtils.setSeed(seed);
+
         setScore(0);
         clearEntities();
         generateDots(dots);
@@ -294,7 +300,7 @@ public class OneDotView extends FrameLayout {
      *
      * @param dot The <i>dot</i> which has been smashed.
      */
-    // TODO: REFORMAT PROCESS
+    // TODO: REFACTOR PROCESS
     public void onDotSmashed(Dot dot) {
         if (isDebug())
             Log.v(TAG, "Dot smashed!");
@@ -466,7 +472,10 @@ public class OneDotView extends FrameLayout {
 
     private class GameLoop extends Thread {
 
-        private final long OPTIMAL_TIME = 1000000000 / TARGET_FPS;
+        private final long ONE_SEC_MILLIS = 1000l;
+        private final long ONE_SEC_NANOS = (long) Math.pow(ONE_SEC_MILLIS, 3);
+
+        private final long OPTIMAL_TIME = ONE_SEC_NANOS / TARGET_CYCLES_PER_SECOND;
 
         private volatile boolean mCancelled;
         private volatile boolean mTriggersLogic;
@@ -494,7 +503,7 @@ public class OneDotView extends FrameLayout {
                 mLastFpsTime += updateLength;
                 mFps++;
 
-                if (mLastFpsTime >= 1000000000) {
+                if (mLastFpsTime >= ONE_SEC_NANOS) {
                     updateFPS(mFps);
                     mLastFpsTime = 0;
                     mFps = 0;
@@ -506,7 +515,8 @@ public class OneDotView extends FrameLayout {
                 }
 
                 try {
-                    Thread.sleep((mLastLoopTime - System.nanoTime() + OPTIMAL_TIME) / 1000000);
+                    Thread.sleep((mLastLoopTime - System.nanoTime() + OPTIMAL_TIME) /
+                            (ONE_SEC_NANOS / ONE_SEC_MILLIS));
                 } catch (Exception ignored) {
                 }
             }

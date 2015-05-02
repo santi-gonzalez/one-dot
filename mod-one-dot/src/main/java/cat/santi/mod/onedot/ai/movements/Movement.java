@@ -12,9 +12,5 @@ public interface Movement {
 
     void iterate(PointF position, Rect surface, double delta);
 
-    float getVelocityX();
-
-    float getVelocityY();
-
     boolean isFinished();
 }
