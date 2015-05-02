@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
-import cat.santi.mod.onedot.ConfigParams;
+import cat.santi.mod.onedot.utils.ConfigUtils;
 import cat.santi.mod.onedot.entities.AbstractEntity;
 import cat.santi.mod.onedot.managers.BitmapManager;
 
@@ -13,9 +13,9 @@ import cat.santi.mod.onedot.managers.BitmapManager;
  */
 public class Skull extends AbstractEntity {
 
-    private static final int ALPHA_MAX = ConfigParams.ALPHA_MAX;
-    private static final int ALPHA_DECAY_DELTA = ConfigParams.ALPHA_DECAY_DELTA;
-    private static final int IMAGE_SIZE = ConfigParams.IMAGE_SIZE;
+    private static final int ALPHA_MAX = ConfigUtils.ALPHA_MAX;
+    private static final int ALPHA_DECAY_DELTA = ConfigUtils.ALPHA_DECAY_DELTA;
+    private static final int IMAGE_SIZE = ConfigUtils.IMAGE_SIZE;
 
     private int mAlpha;
 

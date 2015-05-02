@@ -33,10 +33,12 @@ public class RandomUtils {
         createRandom();
     }
 
+    @SuppressWarnings("unused")
     public static long getSeed() {
         return sSeed;
     }
 
+    @SuppressWarnings("unused")
     public static void setSeed(long seed) {
         sSeed = seed;
         createRandom(seed);

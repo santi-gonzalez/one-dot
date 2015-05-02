@@ -20,6 +20,7 @@ public class AIModuleImpl implements
         init(createMovementsArray(actionCount));
     }
 
+    @SuppressWarnings("unused")
     public AIModuleImpl(Movement... movements) {
         init(movements);
     }

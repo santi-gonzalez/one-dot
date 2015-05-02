@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
-import cat.santi.mod.onedot.ConfigParams;
+import cat.santi.mod.onedot.utils.ConfigUtils;
 import cat.santi.mod.onedot.OneDotView;
 import cat.santi.mod.onedot.ai.AIModule;
 import cat.santi.mod.onedot.ai.movements.Movement;
@@ -19,16 +19,12 @@ import cat.santi.mod.onedot.managers.BitmapManager;
 public class Dot extends AbstractEntity
         implements Movable, Killable {
 
-    private static final int SCORE = ConfigParams.SCORE;
+    private static final int SCORE = ConfigUtils.SCORE;
 
     private AIModule mAIModule;
     private boolean mFlagKilled;
 
     private Movement mMovement;
-
-    public Dot(PointF position, int size) {
-        this(position, size, null);
-    }
 
     public Dot(PointF position, int size, AIModule aiModule) {
         super(position, size);
@@ -67,6 +63,6 @@ public class Dot extends AbstractEntity
         if (mMovement == null || mMovement.isFinished())
             mMovement = mAIModule.next();
 
-        mMovement.iterate(getPosition(), delta);
+        mMovement.iterate(getPosition(), surface, delta);
     }
 }

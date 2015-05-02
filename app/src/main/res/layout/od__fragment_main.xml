@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:odvDebug="true"
-    app:odvThumbRadius="17"
+    app:odvThumbRadius="17dp"
     app:odvScore="0"
     app:odvSurface="#fff"/>
 

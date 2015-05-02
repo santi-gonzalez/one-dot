@@ -26,6 +26,8 @@ import cat.santi.mod.onedot.entities.impl.Dot;
 import cat.santi.mod.onedot.entities.impl.Skull;
 import cat.santi.mod.onedot.managers.BitmapManager;
 import cat.santi.mod.onedot.managers.ManagerFactory;
+import cat.santi.mod.onedot.utils.ConfigUtils;
+import cat.santi.mod.onedot.utils.RandomUtils;
 import cat.santi.mod.onedot.utils.SurfaceUtils;
 
 /**
@@ -42,32 +44,34 @@ import cat.santi.mod.onedot.utils.SurfaceUtils;
  * {@link OneDotView#onDestroy()} in the appropriate lifecycle callbacks.
  */
 public class OneDotView extends FrameLayout {
-
     private static final String TAG = OneDotView.class.getSimpleName();
 
     //////////////////////////////////////////////////
     // CONSTANTS
     //////////////////////////////////////////////////
 
-    private static final int TARGET_FPS = ConfigParams.TARGET_FPS;
+    private static final int TARGET_CYCLES_PER_SECOND = ConfigUtils.TARGET_CYCLES_PER_SECOND;
 
-    private static final int SIZE_DOT_SMALL = ConfigParams.SIZE_DOT_SMALL;
-    private static final int SIZE_DOT_MEDIUM = ConfigParams.SIZE_DOT_MEDIUM;
-    private static final int SIZE_DOT_LARGE = ConfigParams.SIZE_DOT_LARGE;
+    @SuppressWarnings("unused")
+    private static final int SIZE_DOT_SMALL = ConfigUtils.SIZE_DOT_SMALL;
+    @SuppressWarnings("unused")
+    private static final int SIZE_DOT_MEDIUM = ConfigUtils.SIZE_DOT_MEDIUM;
+    @SuppressWarnings("unused")
+    private static final int SIZE_DOT_LARGE = ConfigUtils.SIZE_DOT_LARGE;
 
-    private static final float SURFACE_PADDING = ConfigParams.SURFACE_PADDING;
+    private static final float SURFACE_PADDING = ConfigUtils.SURFACE_PADDING;
 
-    private static final int GENERATED_MOVEMENT_COUNT = ConfigParams.GENERATED_MOVEMENT_COUNT;
+    private static final int GENERATED_MOVEMENT_COUNT = ConfigUtils.GENERATED_MOVEMENT_COUNT;
 
-    private static final boolean SHOW_TOUCHES_IN_DEBUG_MODE = ConfigParams.SHOW_TOUCHES_IN_DEBUG_MODE;
-    private static final boolean SHOW_FPS_IN_DEBUG_MODE = ConfigParams.SHOW_FPS_IN_DEBUG_MODE;
+    private static final boolean SHOW_TOUCHES_IN_DEBUG_MODE = ConfigUtils.SHOW_TOUCHES_IN_DEBUG_MODE;
+    private static final boolean SHOW_FPS_IN_DEBUG_MODE = ConfigUtils.SHOW_FPS_IN_DEBUG_MODE;
 
     // Default attribute values
 
-    private static final int DEF_SCORE = ConfigParams.DEF_SCORE;
-    private static final float DEF_THUMB_RADIUS = ConfigParams.THUMB_RADIUS;
-    private static final int DEF_SURFACE = ConfigParams.DEF_SURFACE;
-    private static final boolean DEF_DEBUG = ConfigParams.DEF_DEBUG;
+    private static final int DEF_SCORE = ConfigUtils.DEF_SCORE;
+    private static final float DEF_THUMB_RADIUS = ConfigUtils.THUMB_RADIUS;
+    private static final int DEF_SURFACE = ConfigUtils.DEF_SURFACE;
+    private static final boolean DEF_DEBUG = ConfigUtils.DEF_DEBUG;
 
     //////////////////////////////////////////////////
     // FIELDS
@@ -193,12 +197,17 @@ public class OneDotView extends FrameLayout {
         this.mScore = score;
     }
 
-    public float getThumbRadius() {
+    public float getThumbRadiusPx() {
         return mThumbRadius;
     }
 
-    public void setThumbRadius(float thumbRadius) {
-        mThumbRadius = SurfaceUtils.dipToPixels(getResources().getDisplayMetrics(), thumbRadius);
+    public void setThumbRadiusPx(float thumbRadius) {
+        mThumbRadius = thumbRadius;
+    }
+
+    @SuppressWarnings("unused")
+    public void setThumbRadiusDip(float thumbRadius) {
+        setThumbRadiusPx(SurfaceUtils.dipToPixels(getResources().getDisplayMetrics(), thumbRadius));
     }
 
     /**
@@ -245,12 +254,20 @@ public class OneDotView extends FrameLayout {
     // View accessors
 
     public void newGame(int dots) {
+        newGame(dots, null);
+    }
+
+    public void newGame(int dots, Long seed) {
         if (mSurfaceRect == null)
             throw new IllegalStateException("A new game can not be started before creation of" +
                     "view layout");
 
         if (isDebug())
             Log.v(TAG, "Creating a new game...");
+
+        if (seed != null)
+            RandomUtils.setSeed(seed);
+
         setScore(0);
         clearEntities();
         generateDots(dots);
@@ -294,7 +311,7 @@ public class OneDotView extends FrameLayout {
      *
      * @param dot The <i>dot</i> which has been smashed.
      */
-    // TODO: REFORMAT PROCESS
+    // TODO: REFACTOR PROCESS
     public void onDotSmashed(Dot dot) {
         if (isDebug())
             Log.v(TAG, "Dot smashed!");
@@ -315,7 +332,7 @@ public class OneDotView extends FrameLayout {
     }
 
     public void generateDot(float x, float y) {
-        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_LARGE, new AIModuleImpl(GENERATED_MOVEMENT_COUNT)));
+        mEntities.add(new Dot(new PointF(x, y), SIZE_DOT_MEDIUM, new AIModuleImpl(GENERATED_MOVEMENT_COUNT)));
         if (isDebug())
             Log.v(TAG, "A dot was generated");
     }
@@ -348,7 +365,7 @@ public class OneDotView extends FrameLayout {
                 defStyleAttr, 0);
 
         setScore(a.getInteger(R.styleable.OneDotView_odvScore, DEF_SCORE));
-        setThumbRadius(a.getFloat(R.styleable.OneDotView_odvThumbRadius, DEF_THUMB_RADIUS));
+        setThumbRadiusPx(a.getDimension(R.styleable.OneDotView_odvThumbRadius, DEF_THUMB_RADIUS));
         setSurface(a.getColor(R.styleable.OneDotView_odvSurface, DEF_SURFACE));
         setDebug(a.getBoolean(R.styleable.OneDotView_odvDebug, DEF_DEBUG));
 
@@ -400,7 +417,7 @@ public class OneDotView extends FrameLayout {
         for (int index = mEntities.size() - 1; index >= 0; index--)
             if (mEntities.get(index) instanceof Killable) {
                 final Killable killableEntity = (Killable) mEntities.get(index);
-                if (killableEntity.collides(point.x, point.y, getThumbRadius()))
+                if (killableEntity.collides(point.x, point.y, getThumbRadiusPx()))
                     killableEntity.smash(this, point.x, point.y);
             }
     }
@@ -412,7 +429,7 @@ public class OneDotView extends FrameLayout {
 
     private void drawDebug(Canvas canvas) {
         if (_debug && mThumbPoint != null)
-            canvas.drawCircle(mThumbPoint.x, mThumbPoint.y, getThumbRadius(), mThumbPaint);
+            canvas.drawCircle(mThumbPoint.x, mThumbPoint.y, getThumbRadiusPx(), mThumbPaint);
     }
 
     private void notifyScoreChanged(int score, int delta) {
@@ -466,7 +483,10 @@ public class OneDotView extends FrameLayout {
 
     private class GameLoop extends Thread {
 
-        private final long OPTIMAL_TIME = 1000000000 / TARGET_FPS;
+        private final long ONE_SEC_MILLIS = 1000l;
+        private final long ONE_SEC_NANOS = (long) Math.pow(ONE_SEC_MILLIS, 3);
+
+        private final long OPTIMAL_TIME = ONE_SEC_NANOS / TARGET_CYCLES_PER_SECOND;
 
         private volatile boolean mCancelled;
         private volatile boolean mTriggersLogic;
@@ -494,7 +514,7 @@ public class OneDotView extends FrameLayout {
                 mLastFpsTime += updateLength;
                 mFps++;
 
-                if (mLastFpsTime >= 1000000000) {
+                if (mLastFpsTime >= ONE_SEC_NANOS) {
                     updateFPS(mFps);
                     mLastFpsTime = 0;
                     mFps = 0;
@@ -506,7 +526,8 @@ public class OneDotView extends FrameLayout {
                 }
 
                 try {
-                    Thread.sleep((mLastLoopTime - System.nanoTime() + OPTIMAL_TIME) / 1000000);
+                    Thread.sleep((mLastLoopTime - System.nanoTime() + OPTIMAL_TIME) /
+                            (ONE_SEC_NANOS / ONE_SEC_MILLIS));
                 } catch (Exception ignored) {
                 }
             }

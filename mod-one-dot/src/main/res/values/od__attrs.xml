@@ -4,8 +4,8 @@
     <declare-styleable name="OneDotView">
         <!-- Initial score -->
         <attr name="odvScore" format="integer"/>
-        <!-- Thumb radius for smashing in dp -->
-        <attr name="odvThumbRadius" format="float"/>
+        <!-- Thumb radius for smashing -->
+        <attr name="odvThumbRadius" format="dimension"/>
         <!-- Surface color (same effect than android:background) -->
         <attr name="odvSurface" format="color|reference"/>
         <!-- Render and log boolean values -->
