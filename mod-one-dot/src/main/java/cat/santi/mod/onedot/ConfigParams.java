@@ -18,7 +18,7 @@ public class ConfigParams {
 
     public static final float SURFACE_PADDING = 20f;
 
-    public static final int GENERATED_MOVEMENT_COUNT = 5;
+    public static final int GENERATED_MOVEMENT_COUNT = 20;
 
     public static final boolean SHOW_TOUCHES_IN_DEBUG_MODE = false;
     public static final boolean SHOW_FPS_IN_DEBUG_MODE = false;
@@ -46,8 +46,8 @@ public class ConfigParams {
     public static final float ACCELERATION_MIN = -.15f;
     public static final float ACCELERATION_MAX = .15f;
 
-    public static final int DURATION_MIN = 20;
-    public static final int DURATION_MAX = 60;
+    public static final int DURATION_MIN = 5;
+    public static final int DURATION_MAX = 30;
 
     private ConfigParams() {
         // Declare private constructor to thwart instantiation

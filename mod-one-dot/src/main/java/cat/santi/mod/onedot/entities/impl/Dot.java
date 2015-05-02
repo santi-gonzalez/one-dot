@@ -67,6 +67,6 @@ public class Dot extends AbstractEntity
         if (mMovement == null || mMovement.isFinished())
             mMovement = mAIModule.next();
 
-        mMovement.iterate(getPosition(), delta);
+        mMovement.iterate(getPosition(), surface, delta);
     }
 }
