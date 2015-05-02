@@ -3,7 +3,7 @@ package cat.santi.mod.onedot.ai.movements.impl;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
-import cat.santi.mod.onedot.ConfigParams;
+import cat.santi.mod.onedot.utils.ConfigUtils;
 import cat.santi.mod.onedot.ai.movements.Movement;
 
 /**
@@ -12,14 +12,14 @@ import cat.santi.mod.onedot.ai.movements.Movement;
 public abstract class AbstractMovement implements
         Movement {
 
-    protected static final float VELOCITY_MIN = ConfigParams.VELOCITY_MIN;
-    protected static final float VELOCITY_MAX = ConfigParams.VELOCITY_MAX;
+    protected static final float VELOCITY_MIN = ConfigUtils.VELOCITY_MIN;
+    protected static final float VELOCITY_MAX = ConfigUtils.VELOCITY_MAX;
 
-    protected static final float ACCELERATION_MIN = ConfigParams.ACCELERATION_MIN;
-    protected static final float ACCELERATION_MAX = ConfigParams.ACCELERATION_MAX;
+    protected static final float ACCELERATION_MIN = ConfigUtils.ACCELERATION_MIN;
+    protected static final float ACCELERATION_MAX = ConfigUtils.ACCELERATION_MAX;
 
-    protected static final int DURATION_MIN = ConfigParams.DURATION_MIN;
-    protected static final int DURATION_MAX = ConfigParams.DURATION_MAX;
+    protected static final int DURATION_MIN = ConfigUtils.DURATION_MIN;
+    protected static final int DURATION_MAX = ConfigUtils.DURATION_MAX;
 
     private final float mStartingVelocityX;
     private final float mStartingVelocityY;
